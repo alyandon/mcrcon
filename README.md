@@ -2,6 +2,9 @@
 
 mcrcon is console based Minecraft [rcon](https://developer.valvesoftware.com/wiki/Source_RCON_Protocol) client for remote administration and server maintenance scripts.
 
+## Changes:
+Add "loose" option to work with non-compliant RCON servers.... /me stares at PalWorld
+
 ---
 
 ### Installing:
