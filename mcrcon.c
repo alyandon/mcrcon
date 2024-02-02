@@ -55,7 +55,7 @@
 #define RCON_AUTHENTICATE       3
 #define RCON_RESPONSEVALUE      0
 #define RCON_AUTH_RESPONSE      2
-#define RCON_PID                0xBADC0DE
+#define RCON_PID                0x61439dc2
 
 #define DATA_BUFFSIZE 4096
 
@@ -109,6 +109,7 @@ static int global_disable_colors = 0;
 static int global_connection_alive = 1;
 static int global_rsock;
 static int global_wait_seconds = 0;
+static int global_loose_mode = 0;
 
 #ifdef _WIN32
   // console coloring on windows
@@ -179,7 +180,7 @@ int main(int argc, char *argv[])
 	// default getopt error handler enabled
 	opterr = 1;
 	int opt;
-	while ((opt = getopt(argc, argv, "vrtcshw:H:p:P:")) != -1)
+    while ((opt = getopt(argc, argv, "vrtlcshw:H:p:P:")) != -1)
 	{
 		switch (opt) {
 			case 'H': host = optarg;                break;
@@ -188,6 +189,7 @@ int main(int argc, char *argv[])
 			case 'c': global_disable_colors = 1;    break;
 			case 's': global_silent_mode = 1;       break;
 			case 'i': /* reserved for interp mode */break;
+            case 'l': global_loose_mode = 1;        break;
 			case 't': terminal_mode = 1;            break;
 			case 'r': global_raw_output = 1;        break;
 			case 'w':
@@ -256,6 +258,7 @@ void usage(void)
 		"Options:\n"
 		"  -H\t\tServer address (default: localhost)\n"
 		"  -P\t\tPort (default: 25575)\n"
+        "  -l\t\tLoose mode (ignores response packet id to work around broken rcon servers)\n"
 		"  -p\t\tRcon password\n"
 		"  -t\t\tTerminal mode\n"
 		"  -s\t\tSilent mode\n"
@@ -617,7 +620,7 @@ int rcon_command(int sock, char *command)
 	if (packet == NULL)
 		return 0;
 
-	if (packet->id != RCON_PID)
+    if (!global_loose_mode && packet->id != RCON_PID)
 		return 0;
 
 	if (!global_silent_mode) {
